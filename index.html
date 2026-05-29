@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Archistar ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
-
     <script src="archetypes.js"></script>
 
     <style>
@@ -52,7 +51,6 @@
             <div id="flip-card" class="w-full h-full relative transform-style-3d">
                 
                 <div id="card-front" class="absolute inset-0 backface-hidden bg-[#0B132B] rounded-2xl overflow-hidden flex flex-col justify-between p-6 border border-gray-800">
-                    
                     <div class="text-center pt-2">
                         <p id="result-subtitle" class="text-xs text-[#D4AF37] tracking-widest uppercase mb-1">ENGINE-STEER-DEST</p>
                         <h2 id="result-title" class="text-2xl font-black text-white tracking-wide break-keep">타이틀</h2>
@@ -93,13 +91,25 @@
                         </div>
                     </div>
                     
-                    <div class="p-4 bg-black/40 border-t border-gray-800 flex flex-col gap-2 relative z-20">
+                    <div class="p-4 bg-black/40 border-t border-gray-800 flex flex-col gap-4 relative z-20">
                         <button onclick="flipCard()" class="w-full glass-panel py-2 rounded-xl text-xs text-gray-400 hover:text-white transition-all">
                             🔄 카드 앞면으로 돌아가기
                         </button>
-                        <button onclick="event.stopPropagation(); window.open('https://open.kakao.com/o/gF07b7wi', '_blank');" class="w-full bg-gradient-to-r from-[#D4AF37] to-[#AA8529] text-white font-bold py-4 rounded-xl text-center shadow-lg block tracking-wide text-sm animate-pulse-gold">
-                            🎁 [선착순 50명 한정] D-1 정밀 진단 무료 예약
-                        </button>
+                        
+                        <div style="padding: 15px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.2); text-align: center;">
+                            <button onclick="event.stopPropagation(); window.open('https://open.kakao.com/o/gF07b7wi', '_blank');" class="w-full bg-gradient-to-r from-[#D4AF37] to-[#AA8529] text-white font-bold py-4 rounded-xl text-center shadow-lg block tracking-wide text-xs animate-pulse-gold" style="cursor: pointer;">
+                                🔮 나만의 인생항로 정밀진단 예약하기
+                            </button>
+
+                            <div style="margin-top: 15px;">
+                                <p style="font-size: 11px; color: #a0aec0; margin: 0 0 10px 0; line-height: 1.4;">
+                                    💻 PC 유저는 스마트폰 카메라로 스캔하세요!
+                                </p>
+                                <div style="display: inline-block; padding: 6px; background-color: #ffffff; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.4);">
+                                    <img src="images/카카오qr.png" alt="오픈채팅 QR코드" style="width: 100px; height: 100px; display: block; object-fit: contain;">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -153,7 +163,6 @@
                 { text: '세상의 모든 빈틈을 찾아내어 시스템의 무결성을 증명하고 질서를 지키는 파수꾼', var: 'SY' }
             ]}
         ];
-
         const baseFlow = ['q1', 'q2', 'q3', 'q4', 'q5'];
         let currentStepIndex = 0;
         let finalJump = null;
@@ -232,11 +241,9 @@
 
             document.getElementById('result-subtitle').innerText = activeResultData.subtitle;
             document.getElementById('result-title').innerText = activeResultData.title;
-            
-            // 🚨 슬래시 루트 차단 로직 포함 (지휘관님의 데이터 파일 경로 완벽 대응)
             let rawImgUrl = activeResultData.imageUrl || 'images/001.png';
             if (rawImgUrl.startsWith('/')) {
-                rawImgUrl = rawImgUrl.substring(1); 
+                rawImgUrl = rawImgUrl.substring(1);
             }
             document.getElementById('result-img').src = rawImgUrl;
             
