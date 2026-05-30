@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archistar ✨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="archetypes.js"></script>
+
+    <style>
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; transition: transform 0.8s cubic-bezier(0.4, 0.2, 0.2, 1); }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg) !important; }
+        .glass-panel { background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.5); border-radius: 10px; }
+        
+        /* 버튼 긴박함 강조 애니메이션 */
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+        }
+        .animate-pulse-gold { animation: pulse-gold 2s infinite; }
+    </style>
+</head>
+<body class="bg-[#0B132B] text-white font-sans min-h-screen flex items-center justify-center p-4">
+
+    <div id="app-container" style="aspect-ratio: 9/16; max-height: 90vh;" class="w-full max-w-md relative overflow-hidden bg-[#0B132B] flex flex-col justify-center items-center rounded-2xl shadow-2xl">
+        
+        <div id="intro-screen" class="absolute inset-0 flex flex-col justify-center items-center text-center p-6 transition-opacity duration-500">
+            <h1 class="text-4xl font-serif text-[#D4AF37] mb-2 tracking-widest">Archistar ✨</h1>
+            <p class="text-gray-300 mb-10 text-sm">나만의 내면 별자리 기질 진단</p>
+            <button onclick="startTest()" class="glass-panel text-white px-8 py-4 rounded-full text-lg shadow-lg hover:bg-white/10 transition-all border-[#D4AF37] border">
+                👉 1분 무료 미니 진단 시작하기
+            </button>
+        </div>
+
+        <div id="test-screen" class="absolute inset-0 flex flex-col justify-center p-6 hidden opacity-0 transition-opacity duration-500">
+            <div class="mb-8">
+                <span id="question-number" class="text-[#D4AF37] text-sm font-bold tracking-wider">QUESTION 1/6</span>
+                <h2 id="question-text" class="text-xl font-medium mt-2 leading-relaxed break-keep">질문 텍스트</h2>
+            </div>
+            <div id="options-container" class="flex flex-col space-y-3 overflow-y-auto custom-scrollbar pr-2 pb-4">
+            </div>
+        </div>
+
+        <div id="result-screen" class="absolute inset-0 hidden opacity-0 transition-opacity duration-500 perspective-1000">
+            <div id="flip-card" class="w-full h-full relative transform-style-3d">
+                
+                <div id="card-front" class="absolute inset-0 backface-hidden bg-[#0B132B] rounded-2xl overflow-hidden flex flex-col justify-between p-6 border border-gray-800">
+                    <div class="text-center pt-2">
+                        <p id="result-subtitle" class="text-xs text-[#D4AF37] tracking-widest uppercase mb-1">ENGINE-STEER-DEST</p>
+                        <h2 id="result-title" class="text-2xl font-black text-white tracking-wide break-keep">타이틀</h2>
+                    </div>
+
+                    <div class="flex justify-center items-center my-auto w-full">
+                        <div class="w-80 h-45 bg-[#0B132B] rounded-xl border border-gray-800/60 shadow-inner overflow-hidden flex items-center justify-center p-1">
+                            <img id="result-img" src="" alt="Archistar Icon" class="w-full h-full object-cover rounded-lg">
+                        </div>
+                    </div>
+
+                    <div class="w-full flex flex-col items-center pb-2">
+                        <button onclick="flipCard()" class="glass-panel w-full py-4 rounded-xl text-white font-bold hover:bg-white/10 transition-all mb-4 border border-[#D4AF37]/30 text-sm tracking-wide">
+                            👉 클릭하여 결과 자세히 보기
+                        </button>
+                        <p class="text-[10px] text-gray-500 tracking-widest uppercase">Archistar by BRAIN-SSAK</p>
+                    </div>
+                </div>
+
+                <div id="card-back" class="absolute inset-0 backface-hidden rotate-y-180 bg-[#0B132B] rounded-2xl overflow-hidden flex flex-col border border-gray-700">
+                    <div class="p-6 overflow-y-auto flex-1 custom-scrollbar flex flex-col">
+                        <h2 id="result-back-title" class="text-2xl font-black text-white text-center mb-2 break-keep">타이틀</h2>
+                        <h3 id="result-desc" class="text-sm font-bold text-[#D4AF37] mb-6 text-center break-keep">1줄 팩트폭격</h3>
+                        
+                        <div class="space-y-4 text-sm text-gray-200">
+                            <div class="glass-panel p-4 rounded-lg">
+                                <p class="font-bold text-white mb-1">✨ 강점</p>
+                                <p id="result-strength" class="break-keep">강점 내용</p>
+                            </div>
+                            <div class="glass-panel p-4 rounded-lg">
+                                <p class="font-bold text-white mb-1">🌑 그림자</p>
+                                <p id="result-shadow" class="break-keep">그림자 내용</p>
+                            </div>
+                            <div class="glass-panel p-4 rounded-lg">
+                                <p class="font-bold text-white mb-1">🌱 성장 포인트</p>
+                                <p id="result-growth" class="break-keep">성장 포인트 내용</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-black/40 border-t border-gray-800 flex flex-col gap-4 relative z-20">
+                        <button onclick="flipCard()" class="w-full glass-panel py-2 rounded-xl text-xs text-gray-400 hover:text-white transition-all">
+                            🔄 카드 앞면으로 돌아가기
+                        </button>
+                        
+                        <button onclick="event.stopPropagation(); window.open('https://open.kakao.com/o/gF07b7wi', '_blank');" class="w-full bg-gradient-to-r from-[#D4AF37] to-[#AA8529] text-white font-bold py-4 rounded-xl text-center shadow-lg block tracking-wide text-xs animate-pulse-gold" style="cursor: pointer;">
+                            🔮 나만의 인생항로 정밀진단 예약하기
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let chosenIndices = [];
+        let activeResultData = null; 
+        
+        const questions = [
+            { id: 'q1', text: '어느 날, 당신에게 전혀 경험해 보지 못한 낯선 상황이 주어졌습니다. 당신의 머릿속에 가장 먼저 드는 생각은?', options: [
+                { text: '남들 시선은 상관없어. 내 고유한 방식대로 멋지게 돌파해 보겠어!', var: 'IDE' },
+                { text: '오, 흥미로운데? 이 상황이 나에게 어떤 새로운 자극을 줄지 기대돼!', var: 'EXR' },
+                { text: '감정적인 건 배제하고, 가장 군더더기 없이 효율적인 정답이 뭐지?', var: 'TTS' },
+                { text: '혹시 모를 위험은 없을까? 안전한 테두리와 규칙부터 확인해야겠다.', var: 'SNG' },
+                { text: '단순한 겉모습이 다가 아닐 거야. 이 현상의 숨겨진 진짜 의미가 뭘까?', var: 'PAC' }
+            ]},
+            { id: 'q2', text: '당신을 가장 지치고 숨 막히게 만드는 상황은 언제인가요?', options: [
+                { text: '누군가 내 고유한 생각이나 방식을 침해하고 억지로 간섭하려 들 때', var: 'IDE' },
+                { text: '뻔하고 지루한 일상이 다람쥐 쳇바퀴처럼 아무 자극 없이 반복될 때', var: 'EXR' },
+                { text: '감정에 휘둘려 대화가 겉돌고, 비효율적이고 멍청한 결정이 내려질 때', var: 'TTS' },
+                { text: '내가 통제할 수 없는 돌발 변수가 생겨 나와 내 사람들의 안전이 위협받을 때', var: 'SNG' },
+                { text: '현상의 이면이나 진실은 보려 하지 않고 얕은 소리들만 오갈 때', var: 'PAC' }
+            ]},
+            { id: 'q3', text: '감당하기 힘든 스트레스나 위기가 몰려올 때, 당신이 삶의 무게를 견뎌내는 본능적인 방식은?', options: [
+                { text: '가만히 있는 게 더 괴롭다. 생각보다 행동! 즉각적으로 새로운 돌파구를 찾아 움직인다.', var: 'EA' },
+                { text: '상처받기 싫다. 돌다리도 두드려보며, 최악의 상황을 상상하고 철저하게 방어막부터 친다.', var: 'BD' },
+                { text: '누군가 내 마음을 알아줬으면 좋겠다. 타인과 감정을 나누고 다정하게 위로를 주고받으며 푼다.', var: 'SR' },
+                { text: '티 내지 않는다. 누구의 방해도 없는 나만의 동굴에 들어가, 묵묵히 침묵 속에서 인내하며 버킨다.', var: 'ED' }
+            ]},
+            { id: 'q4', text: '당신이 사람들과 관계를 맺을 때, 내면에서 가장 중요하게 생각하는 것은?', options: [
+                { text: '얽매임 없는 자유와 주도적으로 이끌어가는 에너지', var: 'EA' },
+                { text: '서로 선을 넘지 않으며, 상처 주지 않고 상처받지 않는 안전한 거리', var: 'BD' },
+                { text: '굳이 말하지 않아도 마음이 통하는 깊고 따뜻한 정서적 교감', var: 'SR' },
+                { text: '쉽게 변하거나 흔들리지 않는 묵직하고 단단한 신뢰', var: 'ED' }
+            ]},
+            { id: 'q5', text: '당신이 삶에서 더 짜릿한 카타르시스를 느끼는 방향은 어느 쪽인가요?', options: [
+                { text: '복잡한 문제를 풀거나 내 능력을 증명하는 [나의 성취와 창조]', jump: 'q6a' },
+                { text: '사람들의 마음을 움직이고 세상을 돕는 [타인과의 연결과 공헌]', jump: 'q6b' }
+            ]},
+            { id: 'q6a', text: '당신이 가장 매력적으로 느끼는 당신의 모습은?', options: [
+                { text: '주어진 임무나 목표를 오차 없이 완벽하게 실행해 내는 에이스', var: 'EX' },
+                { text: '남들이 풀지 못한 복잡한 얽힘 속에서 진실과 해답을 발견해 내는 지혜자', var: 'IQ' },
+                { text: '내 머릿속 상상력을 세상에 없던 나만의 독창적인 결과물로 빚어내는 창조자', var: 'CR' }
+            ]},
+            { id: 'q6b', text: '만약 세상을 조금 더 나은 곳으로 바꿀 수 있다면, 어떤 역할을 하고 싶나요?', options: [
+                { text: '소외되고 상처받은 사람들의 마음을 다정하게 감싸 안아주는 따뜻한 치유자', var: 'HM' },
+                { text: '무리를 이끌고 사회적 영향력을 개척하며 세상의 흐름을 주도하는 카리스마 리더', var: 'CM' },
+                { text: '세상의 모든 빈틈을 찾아내어 시스템의 무결성을 증명하고 질서를 지키는 파수꾼', var: 'SY' }
+            ]}
+        ];
+        const baseFlow = ['q1', 'q2', 'q3', 'q4', 'q5'];
+        let currentStepIndex = 0;
+        let finalJump = null;
+
+        function startTest() {
+            chosenIndices = [];
+            currentStepIndex = 0;
+            finalJump = null;
+            
+            document.getElementById('intro-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('intro-screen').classList.add('hidden');
+                document.getElementById('test-screen').classList.remove('hidden');
+                setTimeout(() => document.getElementById('test-screen').style.opacity = '1', 50);
+                renderQuestion();
+            }, 500);
+        }
+
+        function renderQuestion() {
+            const qId = (currentStepIndex < 5) ? baseFlow[currentStepIndex] : finalJump;
+            const question = questions.find(q => q.id === qId);
+            
+            document.getElementById('question-number').innerText = `QUESTION ${currentStepIndex + 1}/6`;
+            document.getElementById('question-text').innerText = question.text;
+            const container = document.getElementById('options-container');
+            container.innerHTML = '';
+            
+            question.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'glass-panel w-full text-left p-4 rounded-xl text-sm hover:bg-white/20 transition-all text-gray-200 hover:text-white break-keep';
+                btn.innerText = opt.text;
+                btn.onclick = () => handleAnswer(opt, idx);
+                container.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(option, index) {
+            chosenIndices.push(index);
+
+            if (option.jump) finalJump = option.jump;
+
+            currentStepIndex++;
+            if (currentStepIndex < 6) {
+                document.getElementById('test-screen').style.opacity = '0';
+                setTimeout(() => {
+                    renderQuestion();
+                    document.getElementById('test-screen').style.opacity = '1';
+                }, 300);
+            } else {
+                calculateResult();
+            }
+        }
+
+        function calculateResult() {
+            const targetData = window.archetypesData || (typeof archetypesData !== 'undefined' ? archetypesData : null);
+            
+            if (!targetData || !targetData.archetypes) {
+                alert("🚨 archetypes.js 데이터 파일을 읽을 수 없습니다. 파일이 동일 폴더에 있고 첫 줄이 window.archetypesData = { 로 시작하는지 확인해 주세요.");
+                return;
+            }
+
+            const p1 = chosenIndices[0]; 
+            const p2 = chosenIndices[1]; 
+            const p3 = chosenIndices[2]; 
+            const p4 = chosenIndices[3]; 
+            const p5 = chosenIndices[4]; 
+            const p6 = chosenIndices[5]; 
+
+            let uniquePathHash = (p1 * 1) + (p2 * 5) + (p3 * 25) + (p4 * 100) + (p5 * 400) + (p6 * 800);
+            
+            const masterPerfectGrid = [
+                1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+                41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
+                61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+                81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100,
+                101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120
+            ];
+
+            let targetId = masterPerfectGrid[Math.abs(uniquePathHash) % masterPerfectGrid.length];
+
+            if (!targetId || targetId > 120) targetId = 1;
+
+            activeResultData = targetData.archetypes.find(item => item.id === targetId);
+            
+            if (!activeResultData) {
+                activeResultData = targetData.archetypes[0];
+            }
+
+            showResult();
+        }
+
+        function showResult() {
+            document.getElementById('result-subtitle').innerText = activeResultData.subtitle;
+            document.getElementById('result-title').innerText = activeResultData.title;
+            
+            // ⚡ [로컬/웹 공용 철벽 방어형 이미지 연동 패치]
+            // imageUrl에 '/images/001.png'나 'images/001.png'가 어떻게 들어있든, 순수 파일명(예: 001.png)만 정교하게 분리해 냅니다.
+            let cleanFileName = '001.png';
+            if (activeResultData.imageUrl) {
+                const parts = activeResultData.imageUrl.split('/');
+                cleanFileName = parts[parts.length - 1]; // 맨 뒤의 파일명만 쏙 보존
+            }
+            
+            // 현재 내담자가 실행하는 폴더 위치의 'images/파일명' 구조로 결합하여 엑박을 원천 봉쇄합니다.
+            document.getElementById('result-img').src = "images/" + cleanFileName;
+            
+            document.getElementById('result-back-title').innerText = activeResultData.title;
+            document.getElementById('result-desc').innerText = activeResultData.nickname; 
+            document.getElementById('result-strength').innerText = activeResultData.strength;
+            document.getElementById('result-shadow').innerText = activeResultData.shadow;
+            document.getElementById('result-growth').innerText = activeResultData.growthPoint;
+
+            document.getElementById('test-screen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('test-screen').classList.add('hidden');
+                document.getElementById('result-screen').classList.remove('hidden');
+                setTimeout(() => document.getElementById('result-screen').style.opacity = '1', 50);
+            }, 500);
+        }
+
+        function flipCard() {
+            const card = document.getElementById('flip-card');
+            card.classList.toggle('rotate-y-180');
+            
+            const frontFace = document.getElementById('card-front');
+            if (card.classList.contains('rotate-y-180')) {
+                frontFace.style.pointerEvents = 'none';
+            } else {
+                frontFace.style.pointerEvents = 'auto';
+            }
+        }
+    </script>
+</body>
+</html>
